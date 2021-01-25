@@ -1,0 +1,26 @@
+[mysqld]
+innodb_file_per_table = 1
+innodb-flush-method = O_DIRECT
+innodb-log-files-in-group = 2
+innodb-log-file-size = 1G
+innodb-flush-log-at-trx-commit = 2
+innodb-file-per-table = 1
+max_allowed_packet = 1024M
+
+max-user-connections=3000
+max-connections=3500
+max-connect-errors = 4294967295
+
+character-set-server            = utf8mb4
+collation-server                = utf8mb4_0900_ai_ci
+
+innodb_buffer_pool_size=8G
+innodb_buffer_pool_instances = 8
+innodb_read_io_threads = 64
+innodb_write_io_threads = 64
+innodb_use_native_aio = 0
+
+sql_mode = "STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+group_concat_max_len = 65535
+
+disable_log_bin

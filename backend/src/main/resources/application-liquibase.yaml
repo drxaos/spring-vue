@@ -1,0 +1,33 @@
+spring:
+  config:
+    activate:
+      on-profile: [ liquibase ]
+
+  main:
+    web-application-type: none
+
+  datasource:
+    url: jdbc:mysql://mysql-demo.docker:3306/demo_liquibase?createDatabaseIfNotExist=true&useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+
+  liquibaseDiffDataSource:
+    url: jdbc:mysql://mysql-demo.docker:3306/demo?useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+
+  liquibaseTestDataSource:
+    url: jdbc:mysql://mysql-demo.docker:3306/demo_test?useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+
+  jpa.hibernate:
+    ddl-auto: update
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/changelog.xml
+    tag: empty
+
+app:
+  label: dev0

@@ -1,0 +1,46 @@
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: com.example.demo.config.db.MySQL8CustomInnoDBDialect
+
+  liquibase.enabled: false
+  servlet.multipart:
+    max-file-size: 300MB
+    max-request-size: 300MB
+
+  web.resources:
+    static-locations:
+      - file:src/main/resources/static/
+      - file:src/main/resources/public/
+      - classpath:/static/
+      - classpath:/public/
+    cache:
+      cachecontrol:
+        cache-public: true
+        max-age: 3600
+
+  session:
+    store-type: jdbc
+    timeout: 172800 # 2 дня
+
+server.port: 8080
+
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    info:
+      enabled: true
+    beans:
+      enabled: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: INFO

@@ -1,0 +1,51 @@
+services:
+  dns:
+    build: ./dns
+    restart: always
+    container_name: dns.docker
+    hostname: dns.docker
+    environment:
+      MG_RESOLVCONF: /host/etc/resolv.conf
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/host
+  #  image: registry.example.com/demo/dns
+  #    ports:
+  #      - "5380:5380"
+
+  portainer:
+    build: ./portainer
+    restart: always
+    container_name: portainer.docker
+    hostname: portainer.docker
+    environment:
+      CAP_HOST_MANAGEMENT: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /:/host
+      - ../dockerfiles-data/portainer/:/data
+  #  image: registry.example.com/demo/portainer
+  #    ports:
+  #      - "5380:5380"
+
+  mysql-demo:
+    # исправление ошибки "InnoDB: io_setup() failed with EAGAIN"
+    # sudo sysctl -w fs.aio-max-nr=2097152
+    volumes:
+      - ./data/mysql-demo/data:/var/lib/mysql
+      - ./data/mysql-demo/log:/var/log/mysql
+    build:
+      context: ./
+      dockerfile: mysql-demo/Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    restart: always
+    container_name: mysql-demo.docker
+    hostname: mysql-demo.docker
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE (fix "mbind: Operation not permitted")
+  #  image: registry.example.com/demo/mysql-demo
+  #    ports:
+  #      - "3308:3306"
+

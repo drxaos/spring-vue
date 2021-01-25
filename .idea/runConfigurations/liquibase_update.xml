@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="backend run" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="liquibase update" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" folderName="liquibase">
     <module name="backend" />
     <extension name="coverage">
       <pattern>
@@ -8,9 +8,16 @@
       </pattern>
     </extension>
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.demo.Main" />
-    <option name="ACTIVE_PROFILES" value="dev" />
+    <option name="ACTIVE_PROFILES" value="liquibase" />
     <option name="WORKING_DIRECTORY" value="file://$ContentRoot$" />
     <option name="ALTERNATIVE_JRE_PATH" />
+    <additionalParameters>
+      <param>
+        <option name="enabled" value="true" />
+        <option name="name" value="spring.liquibase.exec" />
+        <option name="value" value="update" />
+      </param>
+    </additionalParameters>
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

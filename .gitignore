@@ -1,2 +1,5 @@
 .idea/*
 !/.idea/runConfigurations
+docker/data/*
+!/docker/data/mysql-demo/data/.mysqldata
+!/docker/data/mysql-demo/log/.mysqllogs
