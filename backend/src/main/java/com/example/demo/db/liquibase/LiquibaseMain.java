@@ -1,20 +1,23 @@
 package com.example.demo.db.liquibase;
 
 import com.example.demo.db.repository.UserRepository;
+import com.example.demo.util.DateUtils;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
-import liquibase.changelog.ChangeSetStatus;
+import liquibase.change.core.TagDatabaseChange;
+import liquibase.changelog.ChangeSet;
+import liquibase.changelog.RanChangeSet;
 import liquibase.database.core.MySQLDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffResult;
 import liquibase.diff.compare.CompareControl;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.DiffToChangeLog;
+import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.integration.spring.SpringLiquibase;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.serializer.ChangeLogSerializer;
 import liquibase.serializer.core.xml.XMLChangeLogSerializer;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +31,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +56,10 @@ public class LiquibaseMain {
     public DataSource targetDataSource;
 
     @Autowired
+    @Qualifier("testDataSource")
+    public DataSource testDataSource;
+
+    @Autowired
     UserRepository userRepository;
 
     @Autowired
@@ -62,8 +71,10 @@ public class LiquibaseMain {
     @Profile("liquibase")
     @PostConstruct
     public void liquibaseDiff() throws SQLException, LiquibaseException, IOException, ParserConfigurationException {
+        log.info("Liquibase: " + exec);
+
         if ("diff".equals(exec)) {
-            log.info("Liquibase: diff");
+
             try (Connection connection1 = referenceDataSource.getConnection();
                  Connection connection2 = targetDataSource.getConnection()) {
 
@@ -79,13 +90,15 @@ public class LiquibaseMain {
                 ChangeLogSerializer changeLogSerializer = new XMLChangeLogSerializer();
                 DiffOutputControl diffOutputControl = new DiffOutputControl(false, false, false, null);
                 DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diffResult, diffOutputControl);
+                diffToChangeLog.setIdRoot(DateUtils.formatDate(DateUtils.now(), "yyyy.MM.dd-HH:mm"));
+                diffToChangeLog.setChangeSetAuthor(System.getProperty("user.name"));
                 diffToChangeLog.print("src/main/resources/db/changelog/diff-" + new Date() + ".xml", changeLogSerializer);
             }
 
-        } else if ("update".equals(exec)) {
+        } else if ("update".equals(exec) || "updateTest".equals(exec)) {
+            DataSource updateDataSource = "update".equals(exec) ? targetDataSource : testDataSource;
 
-            log.info("Liquibase: update");
-            try (Connection connection = targetDataSource.getConnection()) {
+            try (Connection connection = updateDataSource.getConnection()) {
 
                 MySQLDatabase database = new MySQLDatabase();
                 database.setConnection(new JdbcConnection(connection));
@@ -96,21 +109,72 @@ public class LiquibaseMain {
 
         } else if ("sql".equals(exec)) {
 
-            log.info("Liquibase: sql");
             try (Connection connection = targetDataSource.getConnection()) {
 
-                MySQLDatabase database = new MySQLDatabase();
+                MySQLDatabase database = new MySQLDatabase() {
+                    @Override
+                    public List<RanChangeSet> getRanChangeSetList() throws DatabaseException {
+                        return List.of();
+                    }
+                };
+                database.setOutputDefaultCatalog(false);
+                database.setOutputDefaultSchema(false);
                 database.setConnection(new JdbcConnection(connection));
 
                 Liquibase liquibase = new Liquibase(springLiquibase.getChangeLog().replaceFirst("^classpath:", ""), new ClassLoaderResourceAccessor(), database);
-                List<ChangeSetStatus> statuses = liquibase.getChangeSetStatuses(new Contexts(), new LabelExpression());
 
-                System.out.println(statuses);
+                // выделяем последний релиз
+                ArrayList<ChangeSet> retain = new ArrayList<>();
+                String fromTag = "";
+                String nextTag = "";
+                for (ChangeSet changeSet : liquibase.getDatabaseChangeLog().getChangeSets()) {
+                    if (changeSet.getId().startsWith("@Release")) {
+                        TagDatabaseChange tagDatabaseChange = (TagDatabaseChange) changeSet.getChanges().get(0);
+                        nextTag = tagDatabaseChange.getTag();
+                    } else if (!nextTag.equals(fromTag)) {
+                        fromTag = nextTag;
+                        retain.clear();
+                    }
 
-                // todo
+                    retain.add(changeSet);
+                }
+                liquibase.getDatabaseChangeLog().getChangeSets().retainAll(retain);
+
+                if (nextTag.equals(fromTag)) {
+                    throw new IllegalStateException("no new release at the end of changelog!");
+                }
+
+                String dbName = "" + liquibase.getDatabaseChangeLog().getChangeLogParameters().getValue("database.liquibaseSchemaName", null);
+
+                BufferedWriter outputWriter1 = updateOutputWriter(nextTag, dbName, ".sql");
+                liquibase.update(nextTag, new Contexts(), new LabelExpression(), outputWriter1);
+
+                BufferedWriter outputWriter2 = updateOutputWriter(nextTag, dbName, ".rollback.sql");
+                liquibase.futureRollbackSQL(nextTag, new Contexts(), new LabelExpression(), outputWriter2);
             }
+        } else {
+            log.error("unknown liquibase command");
         }
 
         new Thread(() -> System.exit(0)).start();
+    }
+
+    private BufferedWriter updateOutputWriter(String nextTag, String dbName, String ext) throws LiquibaseException {
+        try {
+
+            File updateSqlOutputFile = new File(new File("src/main/resources/db/changelog/sql", nextTag), nextTag + ext);
+
+            if (!updateSqlOutputFile.exists()) {
+                updateSqlOutputFile.getParentFile().mkdirs();
+                if (!updateSqlOutputFile.createNewFile()) {
+                    throw new LiquibaseException("Cannot create the migration SQL file; " + updateSqlOutputFile.getAbsolutePath());
+                }
+            }
+
+            log.info("Output SQL Update File: " + updateSqlOutputFile.getAbsolutePath());
+            return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(updateSqlOutputFile), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new LiquibaseException("Failed to create SQL output writer", e);
+        }
     }
 }
