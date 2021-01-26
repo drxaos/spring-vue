@@ -49,7 +49,7 @@ public class Main implements ApplicationListener<ContextRefreshedEvent> {
         }
     }
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         System.setProperty("user.timezone", "UTC");
 

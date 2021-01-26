@@ -80,4 +80,14 @@ public class User implements UserDetails, Persistable {
     public boolean isEnabled() {
         return active;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return persistableEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return persistableHashCode(this);
+    }
 }

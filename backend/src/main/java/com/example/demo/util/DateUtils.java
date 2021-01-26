@@ -24,37 +24,6 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return getCurrentDate.get().getTime();
     }
 
-    @SneakyThrows
-    public static XMLGregorianCalendar xmlNow() {
-        return DatatypeFactory.newInstance().newXMLGregorianCalendar(getCurrentDate.get());
-    }
-
-    public static Date parseXml(String text) {
-        return DatatypeConverter.parseDateTime(text).getTime();
-    }
-
-    public static String formatDuration(Duration duration) {
-        long seconds = duration.getSeconds();
-        long absSeconds = Math.abs(seconds);
-        String positive = String.format(
-                "%d:%02d:%02d",
-                absSeconds / 3600,
-                (absSeconds % 3600) / 60,
-                absSeconds % 60);
-        return seconds < 0 ? "-" + positive : positive;
-    }
-
-    public static String formatDuration(long ms) {
-        long seconds = ms / 1000;
-        long absSeconds = Math.abs(seconds);
-        String positive = String.format(
-                "%d:%02d:%02d",
-                absSeconds / 3600,
-                (absSeconds % 3600) / 60,
-                absSeconds % 60);
-        return seconds < 0 ? "-" + positive : positive;
-    }
-
     public static String formatDate(Date date, String format) {
         if (date == null) {
             return null;
@@ -78,7 +47,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
             return null;
         }
 
-        AtomicReference<Date> result = new AtomicReference<>();
+        var result = new AtomicReference<Date>();
 
         List.of("yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ",
                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
@@ -104,7 +73,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
                 "yyyy",
                 "yy").stream().anyMatch(format -> {
             try {
-                result.set(new SimpleDateFormat(format).parse(date));
+                var simpleDateFormat = new SimpleDateFormat(format);
+                simpleDateFormat.setLenient(false);
+                result.set(simpleDateFormat.parse(date));
                 return true;
             } catch (ParseException pe) {
                 return false;
@@ -135,6 +106,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         return formatDate(date, "yyyy-MM-dd HH:mm:ss.SSS");
     }
 
+    public static Date max(Date date1, Date date2) {
+        return date1.compareTo(date2) > 0 ? date1 : date2;
+    }
+
     /**
      * DateTime в формате ISO-8601 в UTC '2011-12-03T10:15:30Z'
      */
@@ -153,5 +128,37 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 
     public static boolean isAfter(Date dateAfter, Date dateBefore) {
         return dateAfter != null && dateBefore != null && dateAfter.compareTo(dateBefore) > 0;
+    }
+
+
+    @SneakyThrows
+    public static XMLGregorianCalendar xmlNow() {
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(getCurrentDate.get());
+    }
+
+    public static Date parseXml(String text) {
+        return DatatypeConverter.parseDateTime(text).getTime();
+    }
+
+    public static String formatDuration(Duration duration) {
+        long seconds = duration.getSeconds();
+        long absSeconds = Math.abs(seconds);
+        String positive = String.format(
+                "%d:%02d:%02d",
+                absSeconds / 3600,
+                (absSeconds % 3600) / 60,
+                absSeconds % 60);
+        return seconds < 0 ? "-" + positive : positive;
+    }
+
+    public static String formatDuration(long ms) {
+        long seconds = ms / 1000;
+        long absSeconds = Math.abs(seconds);
+        String positive = String.format(
+                "%d:%02d:%02d",
+                absSeconds / 3600,
+                (absSeconds % 3600) / 60,
+                absSeconds % 60);
+        return seconds < 0 ? "-" + positive : positive;
     }
 }

@@ -23,4 +23,13 @@ public class Role implements Persistable {
     @Column(name = "role", unique = true)
     String role;
 
+    @Override
+    public boolean equals(Object o) {
+        return persistableEquals(this, o);
+    }
+
+    @Override
+    public int hashCode() {
+        return persistableHashCode(this);
+    }
 }
