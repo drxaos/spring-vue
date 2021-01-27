@@ -8,4 +8,3 @@
 5. Liquibase - diff / update / release SQL
 6. Logback + rotation
 7. Spring scheduler
-8. JUnit

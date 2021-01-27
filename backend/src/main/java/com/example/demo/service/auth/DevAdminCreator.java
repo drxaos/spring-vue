@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 @Component
 @Profile("dev")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class AdminCreator {
+public class DevAdminCreator {
     private final UserRepository userRepository;
     private final UserService userService;
 
