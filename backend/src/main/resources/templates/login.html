@@ -28,7 +28,7 @@
 <body>
 <div class="login-form">
     <form action="/auth/login" method="post" id="form">
-        <h2 class="text-center">Login Form</h2>
+        <h2 class="text-center" th:text="${label}">Login Form</h2>
         <div class="form-group">
             <input type="text" class="form-control" placeholder="Username" required="required" name="username"
                    id="username">

@@ -6,22 +6,28 @@ import com.example.demo.security.LoginResponse;
 import com.example.demo.service.auth.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthController {
 
+    @Value("${app.label}")
+    private String label;
+
     public final UserService userService;
 
     @GetMapping(value = "/login")
     public ModelAndView login() {
-        return new ModelAndView("login");
+        return new ModelAndView("login", Map.of("label", label));
     }
 
     @GetMapping(value = "/whoami")

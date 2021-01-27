@@ -1,6 +1,6 @@
 package com.example.demo.config.db;
 
-import com.example.demo.db.repository.DbRepository;
+import com.example.demo.db.repository.PersistableRepository;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ import java.sql.Statement;
 @Profile("!liquibase")
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackageClasses = DbRepository.class)
+@EnableJpaRepositories(basePackageClasses = PersistableRepository.class)
 public class DbConfig {
 
     @Value("${spring.datasource.url}")
