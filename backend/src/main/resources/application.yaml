@@ -1,4 +1,6 @@
 
+# common system properties
+
 spring:
   jpa:
     hibernate:
@@ -45,3 +47,8 @@ logging:
     org:
       springframework:
         security: INFO
+
+
+# default application properties
+
+

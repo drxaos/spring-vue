@@ -1,12 +1,12 @@
 package com.example.demo.controller.auth;
 
+import com.example.demo.config.app.Cfg;
+import com.example.demo.config.app.Config;
 import com.example.demo.db.model.auth.User;
-import com.example.demo.db.repository.UserRepository;
 import com.example.demo.security.LoginResponse;
 import com.example.demo.service.auth.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,14 +20,12 @@ import java.util.Map;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuthController {
 
-    @Value("${app.label}")
-    private String label;
-
+    public final Config config;
     public final UserService userService;
 
     @GetMapping(value = "/login")
     public ModelAndView login() {
-        return new ModelAndView("login", Map.of("label", label));
+        return new ModelAndView("login", Map.of("label", config.getString(Cfg.app.title)));
     }
 
     @GetMapping(value = "/whoami")

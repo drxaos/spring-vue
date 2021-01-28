@@ -29,8 +29,8 @@ public class DbConfig {
     @Value("${spring.datasource.password}")
     String password;
 
-    @Value("${app.label}")
-    private String label;
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Bean
     @Primary
@@ -58,7 +58,7 @@ public class DbConfig {
         dataSource.setMaxIdleTime(30);
         dataSource.setMaxConnectionAge(30);
         dataSource.setIdleConnectionTestPeriod(10);
-        ConnectionCustomizer.setInstance(label);
+        ConnectionCustomizer.setInstance(appName);
         dataSource.setConnectionCustomizerClassName(ConnectionCustomizer.class.getName());
 
         // проверяем

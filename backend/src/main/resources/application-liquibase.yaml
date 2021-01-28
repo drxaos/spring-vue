@@ -1,3 +1,5 @@
+# liquibase system properties
+
 spring:
   config:
     activate:
@@ -29,5 +31,3 @@ spring:
     change-log: classpath:db/changelog/changelog.xml
     tag: empty
 
-app:
-  label: dev0
