@@ -1,20 +1,33 @@
 package com.example.demo.test;
 
+import com.example.demo.Main;
+import com.example.demo.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.TimeZone;
 
 @Slf4j
+@ComponentScan(basePackageClasses = Main.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = Main.class))
 public abstract class AbstractTest {
 
     String savedConfig;
 
     protected SoftAssertions softly;
+
+    static {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        System.setProperty("user.timezone", "UTC");
+        log.info("Timezone: UTC, now: " + DateUtils.now());
+    }
 
     {
         for (Method declaredMethod : this.getClass().getDeclaredMethods()) {

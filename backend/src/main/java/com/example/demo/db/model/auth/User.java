@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,14 +31,17 @@ public class User implements UserDetails, Persistable {
     @Column(name = "username", unique = true)
     String username;
 
-    @Column(name = "password")
-    String password;
+    @Column(name = "created")
+    Date created;
+
+    @Column(name = "active")
+    boolean active;
 
     @Column(name = "real_name")
     String realName;
 
-    @Column(name = "active")
-    boolean active;
+    @Column(name = "password")
+    String password;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(name = "`user_role`", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

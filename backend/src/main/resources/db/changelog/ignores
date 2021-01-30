@@ -1,0 +1,4 @@
+{"dropForeignKeyConstraint":{"baseTableName":"SPRING_SESSION_ATTRIBUTES","constraintName":"SPRING_SESSION_ATTRIBUTES_FK"}}
+{"dropUniqueConstraint":{"constraintName":"SPRING_SESSION_IX1","tableName":"SPRING_SESSION"}}
+{"dropTable":{"tableName":"SPRING_SESSION"}}
+{"dropTable":{"tableName":"SPRING_SESSION_ATTRIBUTES"}}

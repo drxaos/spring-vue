@@ -134,4 +134,17 @@
         <tagDatabase tag="r0.3"/>
     </changeSet>
 
+    <changeSet author="admin" id="2021.01.30-16:21-1">
+        <addColumn tableName="user">
+            <column name="created" type="DATETIME"/>
+        </addColumn>
+        <modifySql>
+            <append value=" AFTER username"/>
+        </modifySql>
+    </changeSet>
+
+    <changeSet author="admin" id="@Release 0.4">
+        <tagDatabase tag="r0.4"/>
+    </changeSet>
+
 </databaseChangeLog>

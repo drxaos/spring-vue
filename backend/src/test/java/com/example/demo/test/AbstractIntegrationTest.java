@@ -5,11 +5,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 
 import javax.persistence.EntityManager;
 import java.io.IOException;
 
+@ActiveProfiles("test")
 @SpringBootTest(classes = TestMain.class, properties = "spring.application.admin.enabled=false")
 public abstract class AbstractIntegrationTest extends AbstractTest {
 

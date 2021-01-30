@@ -3,6 +3,7 @@ package com.example.demo.service.auth;
 import com.example.demo.db.model.auth.User;
 import com.example.demo.db.repository.RoleRepository;
 import com.example.demo.db.repository.UserRepository;
+import com.example.demo.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -40,12 +42,14 @@ public class UserService {
         return userRepository.findByUsername(userDetails.getUsername()).get();
     }
 
+    @Transactional
     public User register(String username, String realName, String password, String role) {
         return userRepository.save(new User(null, 0,
                 username,
-                passwordEncoder.encode(password),
-                realName,
+                DateUtils.now(),
                 true,
+                realName,
+                passwordEncoder.encode(password),
                 List.of(roleRepository.findByRole(role).get())));
     }
 }

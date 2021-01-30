@@ -1,0 +1,20 @@
+# development system properties
+
+spring:
+  config:
+    activate:
+      on-profile: [ test ]
+
+  datasource:
+    url: jdbc:mysql://mysql-demo.docker:3306/demo_test?useUnicode=yes&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+    username: root
+    password: root
+
+  application:
+    name: test0
+
+
+# development application properties
+
+app.title: Test
+
